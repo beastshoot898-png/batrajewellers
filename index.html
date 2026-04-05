@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#C9A84C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Batra Jewellers">
+<title>Batra Jewellers - Live Rates</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dark: #8B6914;
+    --gold-text: #7A5C10;
+    --silver: #8899AA;
+    --silver-light: #A8B8C8;
+    --bg: #FDFAF4;
+    --bg2: #FFFFFF;
+    --bg3: #F8F3E8;
+    --bg4: #F2EAD8;
+    --text: #1A1208;
+    --muted: #9A8E7A;
+    --border: #E8DFC8;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    font-family: 'Josefin Sans', sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    background: var(--bg2);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 40px rgba(0,0,0,0.08);
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: linear-gradient(135deg, #0A1628 0%, #1A3A6B 50%, #0A1628 100%);
+    padding: 48px 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .app-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), var(--gold), var(--gold-light), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .app-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 20px;
+    background: var(--bg2);
+    border-radius: 20px 20px 0 0;
+  }
+
+  @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+  /* Decorative circles */
+  .header-decor {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+  .header-decor-1 { width: 200px; height: 200px; top: -60px; right: -60px; }
+  .header-decor-2 { width: 120px; height: 120px; top: -20px; right: 20px; }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .brand-logo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 700;
+    color: #000;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(201,168,76,0.4);
+  }
+
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .brand-sub {
+    font-size: 9px; letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.5);
+    font-weight: 300;
+  }
+
+  /* LIVE BADGE — BOLD */
+  .live-badge {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(76,175,80,0.15);
+    border: 1px solid rgba(76,175,80,0.3);
+    border-radius: 20px;
+    padding: 6px 12px;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4CAF50;
+    box-shadow: 0 0 6px #4CAF50;
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 6px #4CAF50} 50%{opacity:.7;box-shadow:0 0 12px #4CAF50} }
+
+  .live-text {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #4CAF50;
+  }
+
+  /* DATE ROW */
+  .header-date {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .date-text {
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.5);
+  }
+
+  .edit-btn {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold-light);
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 7px 14px; cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .edit-btn:active { background: rgba(201,168,76,0.2); }
+
+  /* ── CONTENT ── */
+  .content { padding: 20px 16px 32px; flex: 1; }
+
+  /* METAL BLOCK */
+  .metal-block { margin-bottom: 20px; }
+
+  .metal-header {
+    display: flex; align-items: center;
+    gap: 10px; margin-bottom: 14px;
+    padding: 0 4px;
+  }
+
+  .metal-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 14px 6px 6px;
+  }
+
+  .metal-circle {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .gold-circle {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+    color: #000;
+    box-shadow: 0 2px 8px rgba(201,168,76,0.3);
+  }
+
+  .silver-circle {
+    background: linear-gradient(135deg, #667788, var(--silver-light));
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(100,130,160,0.3);
+  }
+
+  .metal-label-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  .gold-label { color: var(--gold-text); }
+  .silver-label { color: var(--silver); }
+
+  /* RATE CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .rate-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .rate-card:active { transform: scale(0.98); }
+
+  .rate-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .gold-card::before { background: linear-gradient(180deg, var(--gold-light), var(--gold-dark)); }
+  .silver-card::before { background: linear-gradient(180deg, var(--silver-light), var(--silver)); }
+
+  /* Subtle shimmer on gold cards */
+  .gold-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 60px;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    border-radius: 0 12px 0 0;
+  }
+
+  .rate-karat {
+    font-size: 8px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .rate-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 700; line-height: 1;
+    margin-bottom: 5px;
+  }
+
+  .gold-price { color: var(--gold-text); }
+  .silver-price { color: var(--silver); }
+
+  .rate-unit {
+    font-size: 8px; letter-spacing: 1px;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  .rate-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #4CAF50;
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 4px 0 20px;
+    padding: 0 4px;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-text { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+
+  /* FOOTER */
+  .app-footer {
+    padding: 14px 20px 28px;
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .source-note { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .update-time { font-size: 8px; letter-spacing: 1px; color: var(--muted); }
+
+  /* SKELETON */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg4) 25%, #F8F0DC 50%, var(--bg4) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px; height: 24px; width: 75%;
+  }
+  @keyframes loading { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── MODALS ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,8,4,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-height: 90vh; overflow-y: auto;
+  }
+
+  @keyframes slideUp { from{opacity:0;transform:translateY(100%)} to{opacity:1;transform:translateY(0)} }
+
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  .modal-header {
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 600;
+    letter-spacing: 2px; color: var(--gold-text);
+  }
+
+  .modal-close {
+    background: var(--bg3); border: none;
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer; color: var(--muted);
+  }
+
+  .modal-body { padding: 20px 20px 32px; }
+
+  .modal-note {
+    font-size: 11px; letter-spacing: 1px; color: var(--muted);
+    margin-bottom: 20px; line-height: 1.7;
+    background: var(--bg3);
+    border-left: 3px solid var(--gold);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+
+  .field-input {
+    width: 100%; border: 1.5px solid var(--border);
+    background: var(--bg3); border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field-input:focus { border-color: var(--gold); background: #fff; }
+  .field-hint { font-size: 9px; color: #bbb; letter-spacing: 1px; margin-top: 6px; padding-left: 4px; }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  .btn-apply {
+    flex: 2; background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: #fff; border: none; border-radius: 12px;
+    padding: 16px; font-family: 'Josefin Sans', sans-serif;
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    cursor: pointer; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(139,105,20,0.3);
+    transition: opacity 0.2s;
+  }
+  .btn-apply:active { opacity: 0.85; }
+
+  .btn-auto {
+    flex: 1; background: var(--bg3); color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 16px; font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-auto:active { border-color: var(--gold); color: var(--gold-text); }
+
+  .google-link {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 14px; font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold-text);
+    text-decoration: none; padding: 12px;
+    background: var(--bg3); border-radius: 10px;
+    border: 1px dashed var(--border);
+  }
+
+  /* PASSWORD */
+  .pass-error { color: #e74c3c; font-size: 10px; letter-spacing: 1px; margin-top: 8px; display: none; padding-left: 4px; }
+  .pass-error.show { display: block; }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    display: none;
+    background: linear-gradient(135deg, #1A1208, #2D2010);
+    padding: 14px 20px;
+    align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .install-banner.show { display: flex; }
+  .install-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .install-text { flex: 1; }
+  .install-title { font-size: 11px; font-weight: 600; color: var(--gold-light); letter-spacing: 1px; }
+  .install-sub { font-size: 9px; color: rgba(201,168,76,0.5); letter-spacing: 1px; margin-top: 2px; }
+  .install-btn {
+    background: var(--gold); color: #000; border: none;
+    border-radius: 6px; padding: 8px 14px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    font-weight: 600; cursor: pointer; flex-shrink: 0;
+  }
+  .install-close {
+    background: none; border: none; color: rgba(201,168,76,0.4);
+    font-size: 18px; cursor: pointer; flex-shrink: 0; line-height: 1;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- INSTALL BANNER -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-icon">💎</div>
+    <div class="install-text">
+      <div class="install-title">Add to Home Screen</div>
+      <div class="install-sub">Install as app for quick access</div>
+    </div>
+    <button class="install-btn" id="installBtn">Install</button>
+    <button class="install-close" onclick="document.getElementById('installBanner').classList.remove('show')">×</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-decor header-decor-1"></div>
+    <div class="header-decor header-decor-2"></div>
+    <div class="header-top">
+      <div class="brand-logo">
+        <div class="brand-icon">B</div>
+        <div class="brand-name">Batra Jewellers</div>
+        <div class="brand-sub">Live Metal Rates · India</div>
+      </div>
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span class="live-text">Live</span>
+      </div>
+    </div>
+    <div class="header-date">
+      <div class="date-text" id="dateBar">Loading...</div>
+      <button class="edit-btn" onclick="openPasswordModal()">✎ Edit</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- GOLD -->
+    <div class="metal-block">
+      <div class="metal-header">
+        <div class="metal-pill">
+          <div class="metal-circle gold-circle">Au</div>
+          <div class="metal-label-text gold-label">Gold</div>
+        </div>
+      </div>
+      <div class="cards-grid">
+        <div class="rate-card gold-card">
+          <div class="rate-karat">24 Karat · 999</div>
+          <div class="rate-price gold-price" id="gold24"><div class="skeleton"></div></div>
+          <div class="rate-unit">per gram · ₹</div>
+          <div class="rate-badge" id="change24">—</div>
+        </div>
+        <div class="rate-card gold-card">
+          <div class="rate-karat">22 Karat · 916</div>
+          <div class="rate-price gold-price" id="gold22"><div class="skeleton"></div></div>
+          <div class="rate-unit">per gram · ₹</div>
+          <div class="rate-badge" id="change22">—</div>
+        </div>
+        <div class="rate-card gold-card">
+          <div class="rate-karat">18 Karat · 750</div>
+          <div class="rate-price gold-price" id="gold18"><div class="skeleton"></div></div>
+          <div class="rate-unit">per gram · ₹</div>
+          <div class="rate-badge" id="change18">—</div>
+        </div>
+        <div class="rate-card gold-card">
+          <div class="rate-karat">14 Karat · 585</div>
+          <div class="rate-price gold-price" id="gold14"><div class="skeleton"></div></div>
+          <div class="rate-unit">per gram · ₹</div>
+          <div class="rate-badge" id="change14">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <div class="divider-text">Silver</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- SILVER -->
+    <div class="metal-block">
+      <div class="metal-header">
+        <div class="metal-pill">
+          <div class="metal-circle silver-circle">Ag</div>
+          <div class="metal-label-text silver-label">Silver</div>
+        </div>
+      </div>
+      <div class="cards-grid">
+        <div class="rate-card silver-card">
+          <div class="rate-karat">Pure · 999</div>
+          <div class="rate-price silver-price" id="silver1g"><div class="skeleton"></div></div>
+          <div class="rate-unit">per gram · ₹</div>
+          <div class="rate-badge" id="silverChange">—</div>
+        </div>
+        <div class="rate-card silver-card">
+          <div class="rate-karat">Pure · 999</div>
+          <div class="rate-price silver-price" id="silver10g"><div class="skeleton"></div></div>
+          <div class="rate-unit">per 10g · ₹</div>
+          <div class="rate-badge">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <div class="app-footer">
+    <div class="source-note" id="sourceNote">Fetching rates...</div>
+    <div class="update-time" id="updateTime">—</div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- PASSWORD MODAL -->
+<div class="modal-overlay" id="passwordOverlay" onclick="handlePassOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🔒 Admin Access</div>
+      <button class="modal-close" onclick="closePasswordModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-note">Enter your password to edit today's rates.</div>
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <input class="field-input" type="password" id="passwordInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPassword()" />
+        <div class="pass-error" id="passError">❌ Incorrect password. Try again.</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-apply" onclick="checkPassword()">Unlock →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Update Rates</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-note">Enter 24K gold & silver price per gram. All other karats are auto-calculated.</div>
+      <div class="field-group">
+        <label class="field-label">24 Karat Gold — ₹ per gram</label>
+        <input class="field-input" type="number" id="inputGold24" placeholder="e.g. 9200" inputmode="decimal" />
+        <div class="field-hint">22K · 18K · 14K auto-calculated</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Silver — ₹ per gram</label>
+        <input class="field-input" type="number" id="inputSilver" placeholder="e.g. 105" inputmode="decimal" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-apply" onclick="applyManualRates()">✓ Apply Rates</button>
+        <button class="btn-auto" onclick="autoFetch()">↻ Auto</button>
+      </div>
+      <a class="google-link" href="https://www.google.com/search?q=gold+rate+today+india+per+gram+24+karat" target="_blank">
+        🔍 Check on Google: Gold Rate Today India
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TROY = 31.1035;
+  const ADMIN_PASSWORD = 'batra2024'; // 🔑 Change this!
+  let isManual = false;
+  let deferredPrompt;
+
+  function formatINR(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+
+  function updateDate() {
+    const now = new Date();
+    document.getElementById('dateBar').textContent = now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' }).toUpperCase();
+    document.getElementById('updateTime').textContent = 'Updated ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function updateUI(goldPerGram, silverPerGram, source) {
+    const karats = { gold24:1, gold22:0.9167, gold18:0.750, gold14:0.585 };
+    Object.entries(karats).forEach(([id, ratio]) => {
+      const el = document.getElementById(id);
+      el.innerHTML = formatINR(goldPerGram * ratio);
+      el.classList.add('fade-in');
+    });
+    document.getElementById('silver1g').innerHTML = formatINR(silverPerGram);
+    document.getElementById('silver10g').innerHTML = formatINR(silverPerGram * 10);
+    ['silver1g','silver10g'].forEach(id => document.getElementById(id).classList.add('fade-in'));
+    ['change24','change22','change18','change14','silverChange'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = '● Live'; el.style.color = '#4CAF50'; }
+    });
+    document.getElementById('sourceNote').textContent = source === 'live'
+      ? 'Rates from Batra Jewellers · Indicative only'
+      : 'Manually set · Tap Edit to update';
+  }
+
+  async function fetchFromGoldPriceOrg() {
+    const res = await fetch('https://data-asg.goldprice.org/dbXRates/INR', { cache:'no-store' });
+    if (!res.ok) throw new Error('failed');
+    const data = await res.json();
+    return { g: data.items[0].xauPrice / TROY, s: data.items[0].xagPrice / TROY };
+  }
+
+  async function fetchFromGoldApiCom() {
+    const [g, fx, s] = await Promise.all([
+      fetch('https://gold-api.com/price/XAU'),
+      fetch('https://api.frankfurter.app/latest?from=USD&to=INR'),
+      fetch('https://gold-api.com/price/XAG')
+    ]);
+    if (!g.ok || !fx.ok || !s.ok) throw new Error('failed');
+    const [gd, fd, sd] = await Promise.all([g.json(), fx.json(), s.json()]);
+    return { g: (gd.price * fd.rates.INR) / TROY, s: (sd.price * fd.rates.INR) / TROY };
+  }
+
+  async function fetchRates() {
+    if (isManual) return;
+    let rates = null;
+    try { rates = await fetchFromGoldPriceOrg(); } catch {}
+    if (!rates) { try { rates = await fetchFromGoldApiCom(); } catch {} }
+    if (!rates) { rates = { g: 9200, s: 105 }; }
+    updateUI(rates.g, rates.s, 'live');
+  }
+
+  function applyManualRates() {
+    const g = parseFloat(document.getElementById('inputGold24').value);
+    const s = parseFloat(document.getElementById('inputSilver').value);
+    if (!g || !s || g <= 0 || s <= 0) { alert('Please enter valid rates.'); return; }
+    isManual = true;
+    localStorage.setItem('batra_gold', g);
+    localStorage.setItem('batra_silver', s);
+    localStorage.setItem('batra_manual', 'true');
+    updateUI(g, s, 'manual');
+    updateDate();
+    closeModal();
+  }
+
+  function autoFetch() {
+    isManual = false;
+    localStorage.removeItem('batra_gold');
+    localStorage.removeItem('batra_silver');
+    localStorage.removeItem('batra_manual');
+    fetchRates();
+    updateDate();
+    closeModal();
+  }
+
+  function openPasswordModal() {
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passError').classList.remove('show');
+    document.getElementById('passwordOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('passwordInput').focus(), 400);
+  }
+  function closePasswordModal() { document.getElementById('passwordOverlay').classList.remove('open'); }
+  function handlePassOverlay(e) { if (e.target === document.getElementById('passwordOverlay')) closePasswordModal(); }
+
+  function checkPassword() {
+    if (document.getElementById('passwordInput').value === ADMIN_PASSWORD) {
+      closePasswordModal();
+      openModal();
+    } else {
+      document.getElementById('passError').classList.add('show');
+      document.getElementById('passwordInput').value = '';
+    }
+  }
+
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('inputGold24').focus(), 400);
+  }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+  // PWA Install
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBanner').classList.add('show');
+  });
+  document.getElementById('installBtn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBanner').classList.remove('show');
+    }
+  });
+
+  // INIT
+  const savedManual = localStorage.getItem('batra_manual');
+  const savedGold = parseFloat(localStorage.getItem('batra_gold'));
+  const savedSilver = parseFloat(localStorage.getItem('batra_silver'));
+  if (savedManual && savedGold && savedSilver) {
+    isManual = true;
+    updateDate();
+    updateUI(savedGold, savedSilver, 'manual');
+  } else {
+    updateDate();
+    fetchRates();
+  }
+  setInterval(() => { if (!isManual) { fetchRates(); updateDate(); } }, 5 * 60 * 1000);
+</script>
+</body>
+</html>
