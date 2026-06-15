@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JewelPOS — Luxury Management System</title>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main:     #FFFFFF;
+  --bg-sub:      #F9FAFB;
+  --gold:        #D4AF37; /* Premium Luxury Gold */
+  --gold-dark:   #AA8A22;
+  --gold-light:  #FAF6EC; /* Champagne Silk */
+  --ink-primary: #111827;
+  --ink-muted:   #6B7280;
+  --border:      #E5E7EB;
+  --border-light:#F3F4F6;
+  --red:         #EF4444;
+  --green:       #10B981;
+  --surface:     #FFFFFF;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SIDEBAR (95% White Palette Shift) ── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+
+.sidebar-brand {
+  padding: 32px 24px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-brand h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  letter-spacing: -0.5px;
+}
+.sidebar-brand h1 span {
+  color: var(--gold);
+}
+.sidebar-brand p {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+
+.nav-section {
+  padding: 12px 24px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  opacity: 0.7;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover { color: var(--ink-primary); background: var(--bg-sub); }
+.nav-item.active {
+  color: var(--ink-primary);
+  font-weight: 600;
+  background: var(--gold-light);
+}
+.nav-item .icon { font-size: 16px; width: 20px; color: var(--ink-muted); }
+.nav-item.active .icon { color: var(--gold); }
+
+.sidebar-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border-light);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+/* ── MAIN CONTENT AREA ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-sub); }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+
+.search-wrap { position: relative; }
+.search-wrap input {
+  padding: 10px 16px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 260px;
+  background: var(--bg-main);
+  color: var(--ink-primary);
+  transition: all 0.2s ease;
+}
+.search-wrap input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.1); }
+.search-wrap .s-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--ink-muted); }
+
+.avatar {
+  width: 38px; height: 38px;
+  background: var(--gold-light);
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px; color: var(--gold-dark);
+}
+
+.page { display: none; flex: 1; overflow-y: auto; padding: 40px; }
+.page.active { display: block; }
+
+/* ── MODERN MINIMAL BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  font-family: inherit;
+  cursor: pointer; transition: all 0.2s ease;
+}
+.btn-gold { background: var(--gold); color: white; }
+.btn-gold:hover { background: var(--gold-dark); }
+.btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--ink-primary); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold-dark); background: var(--gold-light); }
+.btn-ghost { background: transparent; color: var(--ink-muted); }
+.btn-ghost:hover { color: var(--ink-primary); background: var(--border-light); }
+.btn-danger { background: #FEF2F2; color: var(--red); border: 1px solid #FEE2E2; }
+.btn-danger:hover { background: var(--red); color: white; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+.btn-row { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+
+/* ── PREMIUM CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--ink-primary);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.stat .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-muted); margin-bottom: 10px; }
+.stat .value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--ink-primary); }
+.stat .sub { font-size: 12px; font-weight: 500; color: var(--ink-muted); margin-top: 6px; }
+.stat .up { color: var(--green); }
+.stat .down { color: var(--red); }
+
+/* ── TABLES ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+thead tr { border-bottom: 2px solid var(--border-light); }
+th { padding: 14px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-muted); }
+td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border-light); color: var(--ink-primary); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg-sub); }
+
+.sku { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: var(--gold-dark); background: var(--gold-light); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(212,175,55,0.15); }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.badge-green { background: #E6F4EA; color: var(--green); }
+.badge-red { background: #FCE8E6; color: var(--red); }
+.badge-yellow { background: var(--gold-light); color: var(--gold-dark); border: 1px solid rgba(212,175,55,0.1); }
+
+/* ── PLATINUM METALS PRICE TICKER ── */
+.price-band {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 28px;
+  display: flex; gap: 32px; align-items: center;
+  margin-bottom: 24px; flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.price-band .metal-price { display: flex; flex-direction: column; }
+.price-band .metal-price .name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-muted); margin-bottom: 4px; }
+.price-band .metal-price .rate { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--ink-primary); }
+.price-band .metal-price .rate span { color: var(--gold); margin-right: 2px; }
+.price-band .metal-price .change { font-size: 11px; font-weight: 600; margin-top: 2px; }
+.price-band .divider { width: 1px; height: 32px; background: var(--border); }
+.price-band .update-time { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--ink-muted); }
+
+/* ── FORMS ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--ink-primary); }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink-primary);
+  background: var(--surface);
+  transition: all 0.2s ease;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+}
+.form-group input[readonly] { background: var(--bg-sub); color: var(--ink-muted); cursor: not-allowed; }
+.form-section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gold-dark); margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border-light); }
+
+/* ── MODALS ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(17,24,39,0.4);
+  z-index: 500; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  width: 90%; max-width: 640px;
+  max-height: 85vh; overflow-y: auto;
+  padding: 36px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+  border: 1px solid var(--border);
+}
+.modal-lg { max-width: 800px; }
+.modal h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; margin-bottom: 24px; }
+.modal-footer { display: flex; gap: 12px; margin-top: 32px; justify-content: flex-end; }
+
+/* ── POS SCANNER & CARTS ── */
+.pos-scanner-zone {
+  border: 2px dashed var(--gold);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  background: var(--gold-light);
+  margin-bottom: 24px;
+  position: relative;
+  cursor: pointer;
+}
+.scanner-icon { font-size: 32px; margin-bottom: 12px; color: var(--gold-dark); }
+.scanner-label { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.scanner-hint { font-size: 13px; color: var(--ink-muted); }
+.scanner-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
+.cart-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg-sub);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-light);
+}
+.cart-item .name { font-weight: 600; font-size: 14px; }
+.cart-item .price { color: var(--gold-dark); font-weight: 700; margin: 0 16px; }
+.cart-remove { background: none; border: none; cursor: pointer; color: var(--ink-muted); font-size: 16px; transition: color 0.2s; }
+.cart-remove:hover { color: var(--red); }
+
+/* ── RECEIPT DESIGN ── */
+.receipt-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+.receipt-box.visible { display: block; }
+.receipt-header { text-align: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px dashed var(--border); }
+.receipt-header h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--ink-primary); }
+.receipt-header p { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+
+.receipt-item-card {
+  background: var(--bg-sub); border: 1px solid var(--border-light); border-radius: 8px;
+  padding: 16px; margin-bottom: 12px; display: flex; gap: 16px;
+}
+.receipt-item-card .item-info { flex: 1; }
+.receipt-item-card .item-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.receipt-item-card .item-details { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.receipt-item-card .detail { font-size: 12px; color: var(--ink-muted); }
+.receipt-item-card .detail span { color: var(--ink-primary); font-weight: 500; }
+.receipt-item-card .item-price { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 16px; color: var(--ink-primary); }
+
+.receipt-totals { border-top: 1px dashed var(--border); margin-top: 20px; padding-top: 16px; }
+.receipt-row { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; color: var(--ink-muted); }
+.receipt-row span:last-child { color: var(--ink-primary); font-weight: 500; }
+.receipt-row.total { font-size: 18px; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 8px; }
+.receipt-row.total span { color: var(--gold-dark) !important; font-weight: 700 !important; }
+
+.receipt-barcode-wrap { text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--border); }
+
+/* ── LUXURY LABELS TAGS ── */
+.tags-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+.tag {
+  width: 250px; border: 1px solid var(--ink-primary);
+  border-radius: 8px; padding: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  background: white; text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+}
+.tag-brand { font-size: 11px; font-weight: 700; letter-spacing: 2px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; margin-bottom: 12px; color: var(--gold-dark); }
+.tag-name { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--ink-primary); }
+.tag-sku { font-size: 11px; color: var(--ink-muted); margin-bottom: 10px; }
+.tag-price { font-size: 18px; font-weight: 700; color: var(--ink-primary); margin: 10px 0; }
+.tag-meta { font-size: 10px; color: var(--ink-muted); line-height: 1.6; text-align: left; background: var(--bg-sub); padding: 8px; border-radius: 4px; }
+
+/* ── CUSTOMER PROFILE CARDS ── */
+.customer-card {
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 20px; display: flex; gap: 16px; align-items: center;
+  transition: all 0.2s ease;
+}
+.customer-card:hover { border-color: var(--gold); transform: translateY(-1px); }
+.cust-avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--gold-light); display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--gold-dark); flex-shrink: 0;
+}
+.cust-info .name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.cust-info .meta { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+.cust-stats { margin-left: auto; text-align: right; }
+.cust-stats .spent { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--ink-primary); }
+.cust-stats .freq { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+
+/* ── EMPTY STATES ── */
+.empty { text-align: center; padding: 48px 16px; color: var(--ink-muted); }
+.empty .e-icon { font-size: 36px; margin-bottom: 12px; color: var(--border); }
+.empty p { font-size: 14px; font-weight: 500; }
+
+/* ── NOTIFICATION TOAST ── */
+.toast {
+  position: fixed; bottom: 32px; right: 32px;
+  background: var(--ink-primary); color: white;
+  padding: 14px 24px; border-radius: 8px;
+  font-size: 14px; font-weight: 500;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  display: none; z-index: 9999;
+  border-left: 4px solid var(--gold);
+}
+.toast.show { display: block; animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@media print {
+  .sidebar, .topbar, .btn-row, .controls, .pos-scanner-zone, .modal-bg { display: none !important; }
+  body, .main, .page { background: white !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
+  .card { border: none !important; padding: 0 !important; box-shadow: none !important; }
+  .receipt-box, .tag { border: 1px solid #000 !important; box-shadow: none !important; page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <h1>Jewel<span>POS</span></h1>
+    <p>Premium Atelier System</p>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">Core Asset Management</div>
+    <div class="nav-item active" onclick="go('dashboard',this)"><span class="icon">◈</span> Dashboard</div>
+    <div class="nav-item" onclick="go('inventory',this)"><span class="icon">▣</span> Inventory Matrix</div>
+    <div class="nav-item" onclick="go('pos',this)"><span class="icon">⊙</span> Terminal POS</div>
+    <div class="nav-item" onclick="go('tags',this)"><span class="icon">⊟</span> Tag Architect</div>
+
+    <div class="nav-section">CRM</div>
+    <div class="nav-item" onclick="go('customers',this)"><span class="icon">◎</span> Client Registry</div>
+
+    <div class="nav-section">Ledger & Corporate</div>
+    <div class="nav-item" onclick="go('finance',this)"><span class="icon">◇</span> Financial Core</div>
+    <div class="nav-item" onclick="go('reports',this)"><span class="icon">▦</span> Analytics Vault</div>
+    <div class="nav-item" onclick="go('prices',this)"><span class="icon">✦</span> Metal Market Rates</div>
+  </nav>
+
+  <div class="sidebar-footer">Production Engine v1.1</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <div class="search-wrap">
+        <span class="s-icon">⌕</span>
+        <input type="text" placeholder="Filter items, look up SKUs…" id="globalSearch" oninput="globalSearchFn()">
+      </div>
+      <div class="avatar">HQ</div>
+    </div>
+  </div>
+
+  <div class="page active" id="page-dashboard">
+    <div class="grid-4">
+      <div class="stat">
+        <div class="label">Closing Sales Today</div>
+        <div class="value" id="stat-sales">₹0</div>
+        <div class="sub up">● Live Connection</div>
+      </div>
+      <div class="stat">
+        <div class="label">Inventory Portfolio Asset Val</div>
+        <div class="value" id="stat-inv">₹0</div>
+        <div class="sub">Market valuation valuation</div>
+      </div>
+      <div class="stat">
+        <div class="label">Active Unique SKUs</div>
+        <div class="value" id="stat-items">0</div>
+        <div class="sub">Items tracked globally</div>
+      </div>
+      <div class="stat">
+        <div class="label">Registered Profiles</div>
+        <div class="value" id="stat-custs">0</div>
+        <div class="sub">VIP & Regular accounts</div>
+      </div>
+    </div>
+
+    <div class="price-band">
+      <div class="metal-price"><div class="name">Au 24K Gold</div><div class="rate" id="dash-p24"><span>₹</span>7,420/g</div></div>
+      <div class="divider"></div>
+      <div class="metal-price"><div class="name">Au 22K Gold</div><div class="rate" id="dash-p22"><span>₹</span>6,850/g</div></div>
+      <div class="divider"></div>
+      <div class="metal-price"><div class="name">Au 18K Gold</div><div class="rate" id="dash-p18"><span>₹</span>5,638/g</div></div>
+      <div class="divider"></div>
+      <div class="metal-price"><div class="name">Ag Silver</div><div class="rate" id="dash-psv"><span>₹</span>73/g</div></div>
+      <div class="divider"></div>
+      <div class="metal-price"><div class="name">Pt Platinum</div><div class="rate" id="dash-ppt"><span>₹</span>4,200/g</div></div>
+      <div class="update-time">System Refresh Synchronized</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">◈ System Pipeline Activity</div>
+        <div id="dash-activity"><div class="empty"><div class="e-icon">◌</div><p>No transactions registered today.</p></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚠ Out-Of-Stock / Low Run Warnings</div>
+        <div id="dash-alerts"><div class="empty"><div class="e-icon">✓</div><p>All stock counts align perfectly with baseline limits.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-inventory">
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="openModal('modal-additem')">＋ Mint New Asset Item</button>
+      <button class="btn btn-outline" onclick="go('tags')">🏷 Open Label Designer</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">▣ Portfolio Storage Balance Ledger <span style="font-size:14px; font-weight:400; color:var(--ink-muted);" id="inv-count"></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU Code</th><th>Product Specification</th><th>Category</th><th>Alloy Profile</th><th>Weight</th>
+              <th>True Cost</th><th>MSRP Value</th><th>Margin</th><th>Vault Slot</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody">
+            <tr><td colspan="10"><div class="empty"><div class="e-icon">▣</div><p>System balance empty. Mint an asset above to initiate tracker.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-pos">
+    <div class="grid-2">
+      <div>
+        <div class="pos-scanner-zone" onclick="focusScanner()">
+          <div class="scanner-icon">⊙</div>
+          <div class="scanner-label">Hardware Input Link Engaged</div>
+          <div class="scanner-hint">Scan product barcode tag or run input SKU target below</div>
+          <div style="margin-top:16px; display:flex; gap:10px; justify-content:center;" onclick="event.stopPropagation()">
+            <input type="text" id="manual-sku" placeholder="Input specific SKU sequence..." style="width:220px;">
+            <button class="btn btn-gold btn-sm" onclick="manualAdd()">Add To Queue</button>
+          </div>
+          <input type="text" class="scanner-input" id="barcode-input" onkeydown="handleScan(event)" autocomplete="off">
+        </div>
+
+        <div class="card">
+          <div class="card-title">🛒 Active Transaction Queue</div>
+          <div id="cart-items"><div class="empty"><div class="e-icon">🛒</div><p>Awaiting hardware or manual serial lookup stream inputs.</p></div></div>
+          <div id="cart-summary" style="display:none; margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
+            <div class="receipt-row"><span>Gross Subtotal</span><span id="cs-sub">₹0</span></div>
+            <div class="receipt-row"><span>Authorized Markdown (Percentage value)</span>
+              <span><input type="number" id="cs-disc" value="0" min="0" max="100" style="width:60px; padding:4px;" oninput="recalcCart()"> %</span>
+            </div>
+            <div class="receipt-row total"><span>Net Settlement Value</span><span id="cs-total">₹0</span></div>
+            <div style="margin-top:20px; display:flex; gap:12px;">
+              <button class="btn btn-gold" style="flex:1" onclick="completeSale()">Commit Transaction Ledger & Print</button>
+              <button class="btn btn-outline" onclick="clearCart()">Flush Queue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-title">🧾 Active System Receipt Engine Matrix</div>
+        <div class="receipt-box" id="receipt-box">
+          <div class="receipt-header">
+            <h2>JEWELPOS ATELIER</h2>
+            <p id="r-storename">Flagship Premium Distribution Center</p>
+            <p id="r-date" style="margin-top:8px; font-family:'JetBrains Mono'; font-size:12px;"></p>
+            <p id="r-receipt-no" style="font-family:'JetBrains Mono'; font-size:12px; font-weight:600; color:var(--gold-dark);"></p>
+          </div>
+          <div id="r-customer-section" style="display:none; background:var(--bg-sub); border-radius:8px; padding:14px; margin-bottom:16px; border:1px solid var(--border-light);">
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--ink-muted); margin-bottom:4px;">Account Assignment</div>
+            <div id="r-customer-name" style="font-weight:700; font-size:14px;"></div>
+            <div id="r-customer-phone" style="font-size:12px; color:var(--ink-muted); font-family:'JetBrains Mono';"></div>
+          </div>
+          <div id="r-items"></div>
+          <div class="receipt-totals">
+            <div class="receipt-row"><span>Subtotal Gross Balance</span><span id="r-sub">₹0</span></div>
+            <div class="receipt-row"><span>Applied System Discretionary Markdown</span><span id="r-disc">₹0</span></div>
+            <div class="receipt-row total"><span>Total Verified Liability Clearance</span><span id="r-total">₹0</span></div>
+          </div>
+          <div class="receipt-barcode-wrap">
+            <svg id="receipt-barcode"></svg>
+            <div style="font-size:11px; font-family:'JetBrains Mono'; color:var(--ink-muted); margin-top:6px;" id="r-receipt-barcode-no"></div>
+          </div>
+          <div style="margin-top:24px; display:flex; gap:12px;">
+            <button class="btn btn-gold" style="flex:1" onclick="printReceipt()">🖨 Transmit System Print Instruction</button>
+            <button class="btn btn-outline" onclick="newSale()">Reset Pipeline Terminal</button>
+          </div>
+        </div>
+        <div id="receipt-empty" class="empty">
+          <div class="e-icon">🧾</div>
+          <p>Matrix viewport idle. Populate structural transaction queue to render physical data components.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <div class="card-title">◎ Dynamic Profile Binding Module</div>
+      <div style="display:flex; gap:16px; align-items:flex-end;">
+        <div class="form-group" style="flex:1; margin:0;">
+          <label>Assign active client registry node</label>
+          <select id="pos-customer" onchange="attachCustomer()">
+            <option value="">— Generic Non-Registered Account (Walk-In) —</option>
+          </select>
+        </div>
+        <button class="btn btn-outline" onclick="openModal('modal-addcust')">Create New Client Shell</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-tags">
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="generateAllTags()">Run Full Asset Catalog Tag Pass</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨 Send Structural Layout to System Spool</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🏷 Hardware Label Tag Array Configurations</div>
+      <div class="tags-grid" id="tags-grid">
+        <div class="empty"><div class="e-icon">▣</div><p>Asset inventory balance reads empty. No structural generation arrays available.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-customers">
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="openModal('modal-addcust')">＋ Provision New Client Profile</button>
+    </div>
+    <div class="card">
+      <div class="card-title">◎ Global CRM Matrix Indexes</div>
+      <div id="cust-list"><div class="empty"><div class="e-icon">◎</div><p>CRM core database initialization returns void lookup targets.</p></div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-finance">
+    <div class="grid-4" id="fin-stats">
+      <div class="stat"><div class="label">Gross Ledger Volume Revenue</div><div class="value" id="fin-rev">₹0</div></div>
+      <div class="stat"><div class="label">Integrated Commodity Asset Cost</div><div class="value" id="fin-cost">₹0</div></div>
+      <div class="stat"><div class="label">Retained Operating Gross Returns</div><div class="value" id="fin-profit">₹0</div></div>
+      <div class="stat"><div class="label">Calculated Absolute Performance Margin</div><div class="value" id="fin-margin">0%</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">◇ Historical Verified Balance Audits</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Receipt Serial</th><th>Verification Timestamp</th><th>Profile Target</th><th>Batch Size</th><th>Gross Realization</th><th>Retained Balance Margin</th></tr>
+          </thead>
+          <tbody id="fin-tbody">
+            <tr><td colspan="6"><div class="empty"><div class="e-icon">◇</div><p>Audit parameters clean. No active adjustments present.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-reports">
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="exportTally()">📤 Package & Route to Tally Systems Format (.CSV)</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨 Spool Static Executive Overview Summary</button>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">▦ Operational Revenue Traces</div>
+        <div style="position: relative; height:220px; width:100%;">
+          <canvas id="sales-chart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">▦ Stock Spread Distribution Model</div>
+        <div style="position: relative; height:220px; width:100%;">
+          <canvas id="inv-chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-prices">
+    <div class="card">
+      <div class="card-title">✦ Live Commodity Reference Base Feeds (INR/Gram)</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Au Gold Fine 24K Spec Base</label><input type="number" id="mp-g24" value="7420"></div>
+        <div class="form-group"><label>Au Gold Jewelry 22K Base Standard</label><input type="number" id="mp-g22" value="6850"></div>
+        <div class="form-group"><label>Au Gold Custom Alloy 18K Base</label><input type="number" id="mp-g18" value="5638"></div>
+        <div class="form-group"><label>Au Gold Commercial 14K Base</label><input type="number" id="mp-g14" value="4640"></div>
+        <div class="form-group"><label>Ag Sterling Silver Refining Spot Rate</label><input type="number" id="mp-sv" value="73"></div>
+        <div class="form-group"><label>Pt Pure Laboratory Platinum Base</label><input type="number" id="mp-pt" value="4200"></div>
+      </div>
+      <button class="btn btn-gold" style="margin-top:16px;" onclick="savePrices()">Commit System Spot Shifts & Recalculate Inventory Costs</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-additem">
+  <div class="modal modal-lg">
+    <h2>Asset Engineering Inventory Matrix Form</h2>
+    <form id="itemForm" onsubmit="event.preventDefault();">
+      <div class="form-section">Identification Metrics</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Commercial Designation Identifier Name *</label><input id="f-name" required placeholder="e.g. Diamond Solitaire Setting 22K"></div>
+        <div class="form-group"><label>Structural Classification Group *</label>
+          <select id="f-cat" required onchange="autoSKU()">
+            <option value="">Select Category Matrix Option...</option>
+            <option>Rings</option><option>Necklaces</option><option>Bracelets</option>
+            <option>Earrings</option><option>Anklets</option><option>Pendants</option><option>Sets</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Generated Reference SKU String</label><input id="f-sku" readonly></div>
+        <div class="form-group"><label>Collection Design Descriptor Line</label><input id="f-design" placeholder="e.g. Riviera Summer Line"></div>
+      </div>
+
+      <div class="form-section">Materials & Purity Analytics</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Assigned Base Core Alloy *</label>
+          <select id="f-metal" required onchange="calcCost()">
+            <option value="">Select Metal Profile Base...</option>
+            <option value="Gold 24K">Gold 24K Fine</option><option value="Gold 22K">Gold 22K Standard</option>
+            <option value="Gold 18K">Gold 18K Commercial</option><option value="Gold 14K">Gold 14K Economy</option>
+            <option value="Silver">Silver Spot Standard</option><option value="Platinum">Platinum Pure 950</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Purity Index Grading Stamp</label><input id="f-purity" placeholder="e.g. BIS Hallmark 916"></div>
+        <div class="form-group"><label>Net Physical Weight Volume (Grams) *</label><input id="f-weight" type="number" step="0.001" required placeholder="0.000" oninput="calcCost()"></div>
+        <div class="form-group"><label>Dimensional Sizing Reference Space</label><input id="f-size" placeholder="e.g. Size 7 Stand / 45cm Chain"></div>
+      </div>
+
+      <div class="form-section">Financing Baseline Calculations</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Raw Metal Structural Cost (Auto Calculated)</label><input id="f-metalcost" value="₹0" readonly></div>
+        <div class="form-group"><label>Atelier Manufacturing/Labor Surcharge Value</label><input id="f-labor" type="number" value="500" oninput="calcCost()"></div>
+        <div class="form-group"><label>Embedded Gemstone Component Valuation Cost</label><input id="f-gemcost" type="number" value="0" oninput="calcCost()"></div>
+        <div class="form-group"><label>Aggregated Operational Unit Cost (Auto Calculated)</label><input id="f-totalcost" value="₹0" readonly></div>
+        <div class="form-group"><label>Configured Retail MSRP Market Value (Price Input) *</label><input id="f-price" type="number" required placeholder="0.00" oninput="calcMargin()"></div>
+        <div class="form-group"><label>Derived Theoretical Accounting Profit Margin</label><input id="f-margin" value="0%" readonly></div>
+      </div>
+
+      <div class="form-section">Warehouse Placement Allocations</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Vault Allocation Grid Slot</label>
+          <select id="f-loc">
+            <option>Open Counter Display Case A</option><option>Window Exhibition Panel B</option>
+            <option>Central Safe Storage Slot Alpha</option><option>Backroom High Security Locker</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Batch Stock Unit Quantities Initialized</label><input id="f-qty" type="number" value="1" min="1"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-additem')">Abort Mint Validation</button>
+        <button type="button" class="btn btn-gold" onclick="saveItem()">Commit Asset Array Node</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-addcust">
+  <div class="modal">
+    <h2>Provision Verified Client Portfolio Profile</h2>
+    <form id="custForm" onsubmit="event.preventDefault();">
+      <div class="form-grid">
+        <div class="form-group"><label>Full Legal Registry Designation Name *</label><input id="c-name" required placeholder="e.g. Devendra Verma"></div>
+        <div class="form-group"><label>Primary Network Telephone Coordinates *</label><input id="c-phone" required placeholder="e.g. +91XXXXXXXXXX"></div>
+        <div class="form-group"><label>Electronic Mail Messaging Link Address</label><input id="c-email" type="email" placeholder="client@luxury.net"></div>
+        <div class="form-group"><label>Profile System Tag Parameter Classification</label>
+          <select id="c-type"><option>Regular Class Account</option><option>VIP Status Core</option><option>Wholesale Portfolio Account</option></select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px;"><label>Atelier Advisory Notes & Preferences Dossier</label><textarea id="c-notes" placeholder="Prefers unheated natural sapphire selections, baseline sizing rings parameter 6.5..."></textarea></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-addcust')">Cancel Registration Process</button>
+        <button type="button" class="btn btn-gold" onclick="saveCustomer()">Authorize Profile Creation</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CORE ENTERPRISE DATA RUNTIME STATE
+// ══════════════════════════════════════════
+let DB = {
+  items:     JSON.parse(localStorage.getItem('jp-items')     || '[]'),
+  customers: JSON.parse(localStorage.getItem('jp-customers') || '[]'),
+  sales:     JSON.parse(localStorage.getItem('jp-sales')     || '[]'),
+  prices:    JSON.parse(localStorage.getItem('jp-prices')    || 'null') || {
+    'Gold 24K': 7420, 'Gold 22K': 6850, 'Gold 18K': 5638, 'Gold 14K': 4640, 'Silver': 73, 'Platinum': 4200
+  }
+};
+
+let cart = [];
+let attachedCustomer = null;
+let salesChart = null, invChart = null;
+
+function save() {
+  localStorage.setItem('jp-items',     JSON.stringify(DB.items));
+  localStorage.setItem('jp-customers', JSON.stringify(DB.customers));
+  localStorage.setItem('jp-sales',     JSON.stringify(DB.sales));
+  localStorage.setItem('jp-prices',    JSON.stringify(DB.prices));
+}
+
+// ══════════════════════════════════════════
+//  SYSTEM VIEW CONTROLLER VIEWPORT PIPELINE
+// ══════════════════════════════════════════
+const titles = {
+  dashboard:'Atelier System Overview Overview', inventory:'Asset Portfolio Ledger Matrix', pos:'Terminal Retail Settlement Gateway',
+  tags:'Label Engineering Design Array', customers:'Client Registry Node Hub',
+  finance:'Corporate Ledger Matrix Accounting', reports:'Advanced Executive Intelligence Vault', prices:'Commodity Reference Standard Indexes'
+};
+
+function go(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  document.getElementById('page-'+page).classList.add('active');
+  if (el) {
+    el.classList.add('active');
+  } else {
+    // Structural Fallback Lookup Route logic for deep code-driven navigation changes
+    const items = document.querySelectorAll('.nav-item');
+    items.forEach(item => {
+      if(item.getAttribute('onclick').includes(page)) item.classList.add('active');
+    });
+  }
+  
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+
+  if (page === 'dashboard') refreshDashboard();
+  if (page === 'inventory') renderInventory();
+  if (page === 'tags') renderTags();
+  if (page === 'customers') renderCustomers();
+  if (page === 'finance') renderFinance();
+  if (page === 'reports') renderReports();
+  if (page === 'pos') { populateCustomerDropdown(); focusScanner(); }
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════
+//  AUTOMATED SPECIFICATION CALCULATOR ENGINE
+// ══════════════════════════════════════════
+function autoSKU() {
+  const prefixes = {Rings:'RING', Necklaces:'NECK', Bracelets:'BRAC', Earrings:'EARN', Anklets:'ANKL', Pendants:'PEND', Sets:'SET'};
+  const cat = document.getElementById('f-cat').value;
+  const pre = prefixes[cat] || 'ASST';
+  const num = String(DB.items.length + 1).padStart(4, '0');
+  document.getElementById('f-sku').value = `${pre}-${num}-${Math.floor(100 + Math.random() * 900)}`;
+}
+
+function calcCost() {
+  const metal = document.getElementById('f-metal').value;
+  const weight = parseFloat(document.getElementById('f-weight').value) || 0;
+  const labor  = parseFloat(document.getElementById('f-labor').value)  || 0;
+  const gems   = parseFloat(document.getElementById('f-gemcost').value) || 0;
+  const rate   = DB.prices[metal] || 0;
+  
+  const mCost  = weight * rate;
+  const total  = mCost + labor + gems;
+  
+  document.getElementById('f-metalcost').value = '₹' + mCost.toFixed(0);
+  document.getElementById('f-totalcost').value = '₹' + total.toFixed(0);
+  calcMargin();
+  return total;
+}
+
+function calcMargin() {
+  const metal = document.getElementById('f-metal').value;
+  const weight = parseFloat(document.getElementById('f-weight').value) || 0;
+  const labor  = parseFloat(document.getElementById('f-labor').value)  || 0;
+  const gems   = parseFloat(document.getElementById('f-gemcost').value) || 0;
+  const rate   = DB.prices[metal] || 0;
+  const cost   = (weight * rate) + labor + gems;
+  
+  const price = parseFloat(document.getElementById('f-price').value) || 0;
+  if (!cost || cost === 0) return;
+  const margin = ((price - cost) / cost * 100).toFixed(1);
+  document.getElementById('f-margin').value = margin + '%';
+}
+
+function saveItem() {
+  const form = document.getElementById('itemForm');
+  if(!form.checkValidity()) {
+    toast('⚠ Required fields incomplete in Asset Schema configuration validation.');
+    return;
+  }
+
+  const name  = document.getElementById('f-name').value.trim();
+  const cat   = document.getElementById('f-cat').value;
+  const metal = document.getElementById('f-metal').value;
+  const weight= parseFloat(document.getElementById('f-weight').value);
+  const price = parseFloat(document.getElementById('f-price').value);
+  const labor  = parseFloat(document.getElementById('f-labor').value)   || 0;
+  const gems   = parseFloat(document.getElementById('f-gemcost').value) || 0;
+  const rate   = DB.prices[metal] || 0;
+  const mCost  = weight * rate;
+  const total  = mCost + labor + gems;
+
+  const item = {
+    id:        Date.now(),
+    sku:       document.getElementById('f-sku').value || 'ASST-GEN-01',
+    name, category: cat, metal, weight, price,
+    purity:    document.getElementById('f-purity').value || 'Verified',
+    size:      document.getElementById('f-size').value || 'Standard Metric',
+    design:    document.getElementById('f-design').value || 'Classic Line',
+    metalCost: mCost, laborCost: labor, gemsCost: gems, totalCost: total,
+    margin:    +((price - total) / total * 100).toFixed(1),
+    location:  document.getElementById('f-loc').value,
+    qty:       parseInt(document.getElementById('f-qty').value) || 1,
+    createdAt: new Date().toISOString()
+  };
+
+  DB.items.push(item);
+  save();
+  closeModal('modal-additem');
+  form.reset();
+  renderInventory();
+  toast('✓ Asset structure successfully securely added to Core Vault.');
+}
+
+// ══════════════════════════════════════════
+//  DATATABLE GRID RENDERING PIPELINE
+// ══════════════════════════════════════════
+function renderInventory() {
+  const tbody = document.getElementById('inv-tbody');
+  document.getElementById('inv-count').textContent = `(${DB.items.length} Tracked Nodes)`;
+
+  if (!DB.items.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="e-icon">▣</div><p>System balance empty. Mint an asset above to initiate tracker.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = DB.items.map(it => `
+    <tr>
+      <td><span class="sku">${it.sku}</span></td>
+      <td><strong>${it.name}</strong><br><small style="color:var(--ink-muted)">${it.design}</small></td>
+      <td>${it.category}</td>
+      <td>${it.metal}<br><small style="color:var(--ink-muted)">${it.purity}</small></td>
+      <td><strong>${it.weight}g</strong></td>
+      <td>₹${it.totalCost.toFixed(0)}</td>
+      <td style="font-weight:700">₹${it.price.toLocaleString('en-IN')}</td>
+      <td><span class="badge ${it.margin>=20?'badge-green':it.margin>=10?'badge-yellow':'badge-red'}">${it.margin}%</span></td>
+      <td><small style="font-weight:600">${it.location}</small><br><small style="color:var(--ink-muted)">Count: ${it.qty}</small></td>
+      <td>
+        <button class="
